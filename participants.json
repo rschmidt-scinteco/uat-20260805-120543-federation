@@ -1,1 +1,9 @@
-[]
+[
+  {
+    "name": "uat-20260805-120543-p1",
+    "repo": "rschmidt-scinteco/uat-20260805-120543-p1",
+    "branch": "main",
+    "interval_minutes": 15,
+    "active": true
+  }
+]
