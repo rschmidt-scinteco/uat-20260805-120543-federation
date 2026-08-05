@@ -1,0 +1,40 @@
+name: Register a participant
+description: Ask this federation to mirror your plankton/nekton records.
+title: "register: <your-name>"
+labels: ["registration"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Your repo must have committed its `registry/` (fotons, claims, and your `.pub` keys).
+        A maintainer will add the **approved** label to admit you; the aggregator then mirrors and
+        **verifies** your records on your chosen interval. Admission ≠ endorsement — every signature is checked.
+  - type: input
+    id: name
+    attributes:
+      label: Participant name
+      description: A short display name (letters, digits, dashes).
+      placeholder: alice-penguins
+    validations:
+      required: true
+  - type: input
+    id: repo
+    attributes:
+      label: Repository (owner/repo)
+      description: The GitHub repo that committed your registry/.
+      placeholder: alice/my-participant
+    validations:
+      required: true
+  - type: dropdown
+    id: interval
+    attributes:
+      label: Mirror interval
+      description: How often the aggregator should re-check your repo for new records.
+      options:
+        - Every 15 minutes
+        - Every hour
+        - Every 6 hours
+        - Every 24 hours
+      default: 1
+    validations:
+      required: true

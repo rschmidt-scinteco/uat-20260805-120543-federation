@@ -1,0 +1,33 @@
+name: mirror
+# Aggregate registered participants. Runs OFTEN (every 5 min - GitHub's minimum) but does almost nothing
+# when nobody published: each participant is gated by (a) its per-participant interval in participants.json
+# and (b) an unchanged manifest top-hash. So frequent scheduling is cheap; new work appears within minutes.
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+    inputs:
+      force:
+        description: 'ignore per-participant intervals (mirror all now)'
+        type: boolean
+        default: false
+permissions:
+  contents: write
+concurrency:
+  group: mirror
+  cancel-in-progress: false
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: chmod +x bin/plankton bin/nekton
+      - name: mirror participants (if anything is new)
+        run: python3 scripts/mirror_once.py ${{ (github.event.inputs.force == 'true') && '--force' || '' }}
+      - name: commit aggregate
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add mirror participants.json
+          git diff --cached --quiet || git commit -m "mirror: aggregate participants [skip ci]"
+          git push

@@ -1,0 +1,30 @@
+name: register
+# A maintainer admits a participant by adding the `approved` label to their registration issue.
+# The label IS the admission gate; this appends them to participants.json and confirms on the issue.
+on:
+  issues:
+    types: [labeled]
+permissions:
+  contents: write
+  issues: write
+jobs:
+  register:
+    if: github.event.label.name == 'approved'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: append participant
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+        run: python3 scripts/register.py
+      - name: commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add participants.json
+          git diff --cached --quiet || git commit -m "register: ${{ github.event.issue.title }}"
+          git push
+      - name: confirm on issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh issue comment ${{ github.event.issue.number }} --body "Registered — the aggregator will mirror your registry on schedule. Signatures are verified on ingest."
